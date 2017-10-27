@@ -1,5 +1,7 @@
 package grafika2;
 
+import java.awt.BasicStroke;
+
 //To do z tego co jest w mouse released/draged zrobic metody/fcje np drawRect itp (?)
 //polynomial
 //jak sie uda to wywalic troche globalnych i porobic milion metod
