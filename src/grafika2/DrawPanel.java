@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -19,9 +20,10 @@ import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+@SuppressWarnings("serial")
 class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMotionListener
 {
-	Graphics2D g2d;
+	static Graphics2D g2d;
 	BufferedImage image;
 	int[] currArgs;
 	int currFigure;
@@ -32,6 +34,7 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 	ArrayList<Rectangle> rectArray;
 	ArrayList<int[]> ovalArray;
 	ArrayList<Polynomial> polynomialArray;
+	ArrayList<Line2D.Double> lineArray;
 	
 	public DrawPanel()
 	{
@@ -47,6 +50,7 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 		rectArray = new ArrayList<Rectangle>();
 		ovalArray = new ArrayList<int[]>();
 		polynomialArray = new ArrayList<Polynomial>();
+		lineArray = new ArrayList<Line2D.Double>();
 		
 		currArgs = new int[4];
 		currFigure = 1;
@@ -82,8 +86,8 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 		super.paintComponent(g);
 		g2d = (Graphics2D) g;
 		g2d.drawImage(image, null, 350, 25);
-		g2d.setStroke(new BasicStroke(6));
-		g2d.setColor(new Color(50, 50, 200));
+		g2d.setStroke(new BasicStroke(4));
+		g2d.setColor(new Color(50, 250, 55));
 		
 		for(int i = 0; i < rectArray.size(); i++)
 		{
@@ -92,7 +96,14 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 		
 		for(int i = 0; i < ovalArray.size(); i++)
 		{
-			g2d.drawOval(ovalArray.get(i)[0], ovalArray.get(i)[1], ovalArray.get(i)[2], ovalArray.get(i)[3]);
+			g2d.drawOval(ovalArray.get(i)[0], ovalArray.get(i)[1], 
+					ovalArray.get(i)[2], ovalArray.get(i)[3]);
+		}
+		
+		for(int i = 0; i < lineArray.size(); i++)
+		{
+			g2d.drawLine((int)lineArray.get(i).getX1(), (int)lineArray.get(i).getY1(), 
+					(int)lineArray.get(i).getX2(), (int)lineArray.get(i).getY2());
 		}
 		
 		for(int i = 0; i < polynomialArray.size(); i++)
@@ -108,67 +119,61 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 		g2d = (Graphics2D) g;
 		g2d.setXORMode( Color.white );
 		
-		if(arg0.getX() >= currArgs[0] && arg0.getY() >= currArgs[1])
+		if(currFigure == 1)
 		{
-			if(currFigure == 1)
+			if(arg0.getX() >= currArgs[0] && arg0.getY() >= currArgs[1])
 			{
 				g2d.drawRect(currArgs[0], currArgs[1], currArgs[2] - currArgs[0], currArgs[3] - currArgs[1]);
 				currArgs[2] = arg0.getX();
 				currArgs[3] = arg0.getY();
 				g2d.drawRect(currArgs[0], currArgs[1], currArgs[2] - currArgs[0], currArgs[3] - currArgs[1]);
 			}
-			else if(currFigure == 0)
-			{
-				g2d.drawOval(currArgs[0], currArgs[1], currArgs[2] - currArgs[0], currArgs[3] - currArgs[1]);
-				currArgs[2] = arg0.getX();
-				currArgs[3] = arg0.getY();
-				g2d.drawOval(currArgs[0], currArgs[1], currArgs[2] - currArgs[0], currArgs[3] - currArgs[1]);
-			}
-		}
-		else if(arg0.getX() < currArgs[0] && arg0.getY() >= currArgs[1])
-		{
-			if(currFigure == 1)
+			else if(arg0.getX() < currArgs[0] && arg0.getY() >= currArgs[1])
 			{
 				g2d.drawRect(currArgs[2], currArgs[1], currArgs[0] - currArgs[2], currArgs[3] - currArgs[1]);
 				currArgs[2] = arg0.getX();
 				currArgs[3] = arg0.getY();
 				g2d.drawRect(currArgs[2], currArgs[1], currArgs[0] - currArgs[2], currArgs[3] - currArgs[1]);
 			}
-			else if(currFigure == 0)
-			{
-				g2d.drawOval(currArgs[2], currArgs[1], currArgs[0] - currArgs[2], currArgs[3] - currArgs[1]);
-				currArgs[2] = arg0.getX();
-				currArgs[3] = arg0.getY();
-				g2d.drawOval(currArgs[2], currArgs[1], currArgs[0] - currArgs[2], currArgs[3] - currArgs[1]);
-			}
-		}
-		else if(arg0.getX() < currArgs[0] && arg0.getY() < currArgs[1])
-		{
-			if(currFigure == 1)
+			else if(arg0.getX() < currArgs[0] && arg0.getY() < currArgs[1])
 			{
 				g2d.drawRect(currArgs[2], currArgs[3], currArgs[0] - currArgs[2], currArgs[1] - currArgs[3]);
 				currArgs[2] = arg0.getX();
 				currArgs[3] = arg0.getY();
 				g2d.drawRect(currArgs[2], currArgs[3], currArgs[0] - currArgs[2], currArgs[1] - currArgs[3]);
 			}
-			else if(currFigure == 0)
+			else if(arg0.getX() >= currArgs[0] && arg0.getY() < currArgs[1])
 			{
-				g2d.drawOval(currArgs[2], currArgs[3], currArgs[0] - currArgs[2], currArgs[1] - currArgs[3]);
+				g2d.drawRect(currArgs[0], currArgs[3], currArgs[2] - currArgs[0], currArgs[1] - currArgs[3]);
 				currArgs[2] = arg0.getX();
 				currArgs[3] = arg0.getY();
-				g2d.drawOval(currArgs[2], currArgs[3], currArgs[0] - currArgs[2], currArgs[1] - currArgs[3]);
+				g2d.drawRect(currArgs[0], currArgs[3], currArgs[2] - currArgs[0], currArgs[1] - currArgs[3]);
 			}
 		}
-		else if(arg0.getX() >= currArgs[0] && arg0.getY() < currArgs[1])
+		if(currFigure == 0)
 		{
-			if(currFigure == 1)
+			if(arg0.getX() >= currArgs[0] && arg0.getY() >= currArgs[1])
 			{
-				g2d.drawRect(currArgs[0], currArgs[3], currArgs[2] - currArgs[0], currArgs[1] - currArgs[3]);
+				g2d.drawOval(currArgs[0], currArgs[1], currArgs[2] - currArgs[0], currArgs[3] - currArgs[1]);
 				currArgs[2] = arg0.getX();
 				currArgs[3] = arg0.getY();
-				g2d.drawRect(currArgs[0], currArgs[3], currArgs[2] - currArgs[0], currArgs[1] - currArgs[3]);
+				g2d.drawOval(currArgs[0], currArgs[1], currArgs[2] - currArgs[0], currArgs[3] - currArgs[1]);
 			}
-			else if(currFigure == 0)
+			else if(arg0.getX() < currArgs[0] && arg0.getY() >= currArgs[1])
+			{
+				g2d.drawOval(currArgs[2], currArgs[1], currArgs[0] - currArgs[2], currArgs[3] - currArgs[1]);
+				currArgs[2] = arg0.getX();
+				currArgs[3] = arg0.getY();
+				g2d.drawOval(currArgs[2], currArgs[1], currArgs[0] - currArgs[2], currArgs[3] - currArgs[1]);
+			}
+			else if(arg0.getX() < currArgs[0] && arg0.getY() < currArgs[1])
+			{
+				g2d.drawOval(currArgs[2], currArgs[3], currArgs[0] - currArgs[2], currArgs[1] - currArgs[3]);
+				currArgs[2] = arg0.getX();
+				currArgs[3] = arg0.getY();
+				g2d.drawOval(currArgs[2], currArgs[3], currArgs[0] - currArgs[2], currArgs[1] - currArgs[3]);
+			}
+			else if(arg0.getX() >= currArgs[0] && arg0.getY() < currArgs[1])
 			{
 				g2d.drawOval(currArgs[0], currArgs[3], currArgs[2] - currArgs[0], currArgs[1] - currArgs[3]);
 				currArgs[2] = arg0.getX();
@@ -180,12 +185,9 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 
 	@Override
 	public void mouseMoved(MouseEvent arg0) 
-	{
-		// TODO Auto-generated method stub
-		
-	}
+	{}
 	
-	ArrayList<Point> arr = new ArrayList<Point>();
+	ArrayList<Point> pointArray = new ArrayList<Point>();
 	
 	@Override
 	public void mouseClicked(MouseEvent arg0) 
@@ -197,16 +199,23 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 		{
 			if(arg0.getButton() == MouseEvent.BUTTON1)
 			{
-				arr.add(arg0.getPoint());
+				if(pointArray.size() > 0)
+				{
+					lineArray.add(new Line2D.Double(pointArray.get(pointArray.size() - 1).getX(),
+							pointArray.get(pointArray.size() - 1).getY(),
+							arg0.getX(),
+							arg0.getY()));
+				}
+				pointArray.add(arg0.getPoint());
 			}
 			else
 			{
 				ArrayList<Point> temp = new ArrayList<Point>();
-				for(int i = 1; i < arr.size(); i++)
-					temp.add(arr.get(i));
+				for(int i = 1; i < pointArray.size(); i++)
+					temp.add(pointArray.get(i));
 				try
 				{
-					Polynomial p = new Polynomial(arr.get(0), temp, g2d);
+					Polynomial p = new Polynomial(pointArray.get(0), temp);
 					p.draw();
 					polynomialArray.add(p);
 				}
@@ -214,7 +223,7 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 				{
 					System.out.println("Not enought points for polynomial\n");
 				}
-				arr.clear();
+				pointArray.clear();
 			}
 		}
 		repaint();
@@ -246,16 +255,38 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 		Graphics g = getGraphics();
 		g2d = (Graphics2D) g;
 		
-		if(arg0.getX() >= currArgs[0] && arg0.getY() >= currArgs[1])
+		if(currFigure == 1)
 		{
 			currArgs[2] = arg0.getX();
 			currArgs[3] = arg0.getY();
-			if(currFigure == 1)
+			
+			if(arg0.getX() >= currArgs[0] && arg0.getY() >= currArgs[1])
 			{
 				g2d.drawRect(currArgs[0], currArgs[1], currArgs[2] - currArgs[0], currArgs[3] - currArgs[1]);
 				rectArray.add(new Rectangle(currArgs[0], currArgs[1], currArgs[2] - currArgs[0], currArgs[3] - currArgs[1]));
 			}
-			else if(currFigure == 0)
+			else if(arg0.getX() < currArgs[0] && arg0.getY() >= currArgs[1])
+			{
+				g2d.drawRect(currArgs[2], currArgs[1], currArgs[0] - currArgs[2], currArgs[3] - currArgs[1]);
+				rectArray.add(new Rectangle(currArgs[2], currArgs[1], currArgs[0] - currArgs[2], currArgs[3] - currArgs[1]));
+			}
+			else if(arg0.getX() < currArgs[0] && arg0.getY() < currArgs[1])
+			{
+				g2d.drawRect(currArgs[2], currArgs[3], currArgs[0] - currArgs[2], currArgs[1] - currArgs[3]);
+				rectArray.add(new Rectangle(currArgs[2], currArgs[3], currArgs[0] - currArgs[2], currArgs[1] - currArgs[3]));
+			}
+			else if(arg0.getX() >= currArgs[0] && arg0.getY() < currArgs[1])
+			{
+				g2d.drawRect(currArgs[0], currArgs[3], currArgs[2] - currArgs[0], currArgs[1] - currArgs[3]);
+				rectArray.add(new Rectangle(currArgs[0], currArgs[3], currArgs[2] - currArgs[0], currArgs[1] - currArgs[3]));
+			}
+		}
+		else if(currFigure == 0)
+		{
+			currArgs[2] = arg0.getX();
+			currArgs[3] = arg0.getY();
+			
+			if(arg0.getX() >= currArgs[0] && arg0.getY() >= currArgs[1])
 			{
 				g2d.drawOval(currArgs[0], currArgs[1], currArgs[2] - currArgs[0], currArgs[3] - currArgs[1]);
 				int[] arr = new int[4];
@@ -265,17 +296,7 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 				arr[3] = currArgs[3] - currArgs[1];
 				ovalArray.add(arr);
 			}
-		}
-		else if(arg0.getX() < currArgs[0] && arg0.getY() >= currArgs[1])
-		{
-			currArgs[2] = arg0.getX();
-			currArgs[3] = arg0.getY();
-			if(currFigure == 1)
-			{
-				g2d.drawRect(currArgs[2], currArgs[1], currArgs[0] - currArgs[2], currArgs[3] - currArgs[1]);
-				rectArray.add(new Rectangle(currArgs[2], currArgs[1], currArgs[0] - currArgs[2], currArgs[3] - currArgs[1]));
-			}
-			else if(currFigure == 0)
+			else if(arg0.getX() < currArgs[0] && arg0.getY() >= currArgs[1])
 			{
 				g2d.drawOval(currArgs[2], currArgs[1], currArgs[0] - currArgs[2], currArgs[3] - currArgs[1]);
 				int[] arr = new int[4];
@@ -285,17 +306,7 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 				arr[3] = currArgs[3] - currArgs[1];
 				ovalArray.add(arr);
 			}
-		}
-		else if(arg0.getX() < currArgs[0] && arg0.getY() < currArgs[1])
-		{
-			currArgs[2] = arg0.getX();
-			currArgs[3] = arg0.getY();
-			if(currFigure == 1)
-			{
-				g2d.drawRect(currArgs[2], currArgs[3], currArgs[0] - currArgs[2], currArgs[1] - currArgs[3]);
-				rectArray.add(new Rectangle(currArgs[2], currArgs[3], currArgs[0] - currArgs[2], currArgs[1] - currArgs[3]));
-			}
-			else if(currFigure == 0)
+			else if(arg0.getX() < currArgs[0] && arg0.getY() < currArgs[1])
 			{
 				g2d.drawOval(currArgs[2], currArgs[3], currArgs[0] - currArgs[2], currArgs[1] - currArgs[3]);
 				int[] arr = new int[4];
@@ -305,17 +316,7 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 				arr[3] = currArgs[1] - currArgs[3];
 				ovalArray.add(arr);
 			}
-		}
-		else if(arg0.getX() >= currArgs[0] && arg0.getY() < currArgs[1])
-		{
-			currArgs[2] = arg0.getX();
-			currArgs[3] = arg0.getY();
-			if(currFigure == 1)
-			{
-				g2d.drawRect(currArgs[0], currArgs[3], currArgs[2] - currArgs[0], currArgs[1] - currArgs[3]);
-				rectArray.add(new Rectangle(currArgs[0], currArgs[3], currArgs[2] - currArgs[0], currArgs[1] - currArgs[3]));
-			}
-			else if(currFigure == 0)
+			else if(arg0.getX() >= currArgs[0] && arg0.getY() < currArgs[1])
 			{
 				g2d.drawOval(currArgs[0], currArgs[3], currArgs[2] - currArgs[0], currArgs[1] - currArgs[3]);
 				int[] arr = new int[4];
@@ -326,6 +327,7 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 				ovalArray.add(arr);
 			}
 		}
+		
 		repaint();
 	}
 
@@ -339,6 +341,7 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 			currFigure = 1;
 		if(source == polynomialButton)
 			currFigure = 2;
+		
 		repaint();
 	}
 }

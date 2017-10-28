@@ -2,10 +2,10 @@ package grafika2;
 
 import javax.swing.JFrame;
 
-//To do z tego co jest w mouse released/draged zrobic metody/fcje np drawRect itp (?)
-//polynomial
-//jak sie uda to wywalic troche globalnych i porobic milion metod
+//todo
+//clipImage (?)
 //rozbic na klasy (?) rect, oval, poly (?)
+//rysowanie tylko na obrazku
 
 public class Gui 
 {
