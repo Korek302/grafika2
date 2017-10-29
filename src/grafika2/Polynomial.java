@@ -19,6 +19,13 @@ public class Polynomial
 		points = arr;
 		this.start = start;
 	}
+	
+	public ArrayList<Point> getPoints()
+	{
+		ArrayList<Point> out = points;
+		out.add(0, start);
+		return out;
+	}
 
 	public void draw()
 	{

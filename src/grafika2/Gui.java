@@ -27,13 +27,5 @@ public class Gui
 		frame.getContentPane().add(panel);
 		frame.setVisible(true);
 	}
-	
-	static int int2RGB( int red, int green, int blue)
-	{
-		red = red & 0x000000FF;
-		green = green & 0x000000FF;
-		blue = blue & 0x000000FF;
-		return (red << 16) + (green << 8) + blue;
-	}
 }
 

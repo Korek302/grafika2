@@ -21,6 +21,7 @@ import java.util.Collections;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -37,6 +38,8 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 	BufferedImage image;
 	BufferedImage currImage;
 	
+	Color selectionColor;
+	
 	int[] currArgs;
 	int currFigure;
 	
@@ -45,6 +48,8 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 	JButton polynomialButton;
 	JButton resetButton;
 	JButton saveButton;
+	JButton deleteButton;
+	JButton colorButton;
 	
 	JList<String> list;
 	DefaultListModel<String> defList;
@@ -60,7 +65,7 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 	{
 		super();
 		setLayout(null);
-		setBackground(new Color(100, 100, 100));
+		setBackground(new Color(150, 150, 100));
 		
 		image = new BufferedImage(500, 500, BufferedImage.TYPE_INT_RGB);
 		currImage = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
@@ -74,6 +79,8 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 		polynomialButton = new JButton("Polynomial");
 		resetButton = new JButton("Reset");
 		saveButton = new JButton("Save");
+		deleteButton = new JButton("Delete");
+		colorButton = new JButton("Color");
 		
 		rectArray = new ArrayList<Rectangle>();
 		ovalArray = new ArrayList<int[]>();
@@ -89,6 +96,8 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 		polynomialButton.setBounds(20, 420, 100, 30);
 		resetButton.setBounds(190, 420, 100, 30);
 		saveButton.setBounds(190, 390, 100, 30);
+		deleteButton.setBounds(190, 360, 100, 30);
+		colorButton.setBounds(190, 310, 100, 30);
 		
 		try
 		{
@@ -104,12 +113,16 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 		add(polynomialButton);
 		add(resetButton);
 		add(saveButton);
+		add(deleteButton);
+		add(colorButton);
 		
 		rectButton.addActionListener(this);
 		ovalButton.addActionListener(this);
 		polynomialButton.addActionListener(this);
 		resetButton.addActionListener(this);
 		saveButton.addActionListener(this);
+		deleteButton.addActionListener(this);
+		colorButton.addActionListener(this);
 		
 		list.setModel(defList);
 		splitPane.setLeftComponent(new JScrollPane(list));
@@ -132,8 +145,8 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 		super.paintComponent(g);
 		g2d = (Graphics2D) g;
 		g2d.drawImage(image, null, 300, 0);
-		g2d.setStroke(new BasicStroke(4));
-		g2d.setColor(new Color(50, 250, 55));
+		g2d.setStroke(new BasicStroke(3));
+		g2d.setColor(selectionColor);
 		
 		for(int i = 0; i < rectArray.size(); i++)
 		{
@@ -305,7 +318,7 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 							}
 							else
 							{
-								img.setRGB(i, j, Gui.int2RGB(0, 0, 0));
+								img.setRGB(i, j, int2RGB(0, 0, 0));
 							}
 						}
 					}
@@ -461,7 +474,7 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 						}
 						else
 						{
-							img.setRGB(i, j, Gui.int2RGB(0, 0, 0));
+							img.setRGB(i, j, int2RGB(0, 0, 0));
 						}
 					}
 				}
@@ -506,7 +519,97 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 				System.out.println("The image cannot be stored");
 			}
 		}
+		if(source == deleteButton)
+		{
+			String listElem = list.getSelectedValue();
 		
+			if(listElem.startsWith("Rectangle"))
+			{
+				int index = Integer.parseInt(listElem.substring(9, listElem.length()));
+				index--;
+				rectArray.get(index);
+				
+				int maxX = (int) (rectArray.get(index).getMaxX());
+				int minX = (int) (rectArray.get(index).getMinX());
+				int maxY = (int) (rectArray.get(index).getMaxY());
+				int minY = (int) (rectArray.get(index).getMinY());
+				
+				for(int i = 0; i < maxX - minX; i++)
+				{
+					for(int j = 0; j < maxY - minY; j++)
+					{
+						image.setRGB(minX + i - 300, minY + j, int2RGB(0, 0, 0));
+					}
+				}
+			}
+			else if(listElem.startsWith("Polynomial"))
+			{
+				int index = Integer.parseInt(listElem.substring(10, listElem.length()));
+				index--;
+				ArrayList<Point> tempPointArray = polynomialArray.get(index).getPoints();
+				ArrayList<Integer> xList = new ArrayList<Integer>();
+				ArrayList<Integer> yList = new ArrayList<Integer>();
+				
+				for(int i = 0; i < tempPointArray.size(); i ++)
+				{
+					xList.add((int) tempPointArray.get(i).getX()); 
+					yList.add((int) tempPointArray.get(i).getY()); 
+				}
+				
+				int maxX = Collections.max(xList);
+				int minX = Collections.min(xList);
+				int maxY = Collections.max(yList);
+				int minY = Collections.min(yList);
+				int w = maxX - minX;
+				int h = maxY - minY;
+				
+				for(int i = 0; i < w; i++)
+				{
+					for(int j = 0; j < h; j++)
+					{
+						if(polynomialArray.get(polynomialArray.size() - 1).isInside(new Point(minX+i, minY+j)))
+						{
+							image.setRGB(minX + i - 300, minY + j, int2RGB(0, 0, 0));
+						}
+					}
+				}
+			}
+			else if(listElem.startsWith("Oval"))
+			{
+				int index = Integer.parseInt(listElem.substring(4, listElem.length()));
+				index--;
+				
+				int x = ovalArray.get(index)[0];
+				int y = ovalArray.get(index)[1];
+				int w = ovalArray.get(index)[2];
+				int h = ovalArray.get(index)[3];
+				double midX = w/2;
+				double midY = h/2;
+				
+				for(int i = 0; i < w; i++)
+				{
+					for(int j = 0; j < h; j++)
+					{
+						if( (i - midX)*(i - midX) / (midX*midX) + (j - midY)*(j - midY) / (midY*midY) < 1)
+						{
+							image.setRGB(x + i - 300, y + j, int2RGB(0, 0, 0));	
+						}
+					}
+				}
+			}
+			imageList.remove(list.getSelectedIndex());
+			defList.remove(list.getSelectedIndex());
+			currImage = image;
+			splitPane.setRightComponent(new ImagePanel(currImage));
+		}
+		else if(source == colorButton)
+		{
+			selectionColor = JColorChooser.showDialog(null, "Pick your color", selectionColor);
+			if(selectionColor == null)
+			{
+				selectionColor = Color.GRAY;
+			}
+		}
 		repaint();
 	}
 
@@ -515,7 +618,8 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 	{
 		try
 		{
-			currImage = imageList.get(list.getSelectedIndex());
+			if(list.getSelectedIndex() != -1)
+				currImage = imageList.get(list.getSelectedIndex());
 			splitPane.setRightComponent(new ImagePanel(currImage));
 			splitPane.setDividerLocation(100);
 		}
@@ -523,5 +627,13 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 		{
 			System.out.print("Index out of bounds: valueChanged");
 		}
+	}
+	
+	static int int2RGB( int red, int green, int blue)
+	{
+		red = red & 0x000000FF;
+		green = green & 0x000000FF;
+		blue = blue & 0x000000FF;
+		return (red << 16) + (green << 8) + blue;
 	}
 }
