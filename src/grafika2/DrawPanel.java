@@ -37,6 +37,7 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 	
 	BufferedImage image;
 	BufferedImage currImage;
+	BufferedImage originalImage;
 	
 	Color selectionColor;
 	
@@ -68,7 +69,9 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 		setBackground(new Color(150, 150, 100));
 		
 		image = new BufferedImage(500, 500, BufferedImage.TYPE_INT_RGB);
+		originalImage = new BufferedImage(500, 500, BufferedImage.TYPE_INT_RGB);
 		currImage = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
+		
 		
 		defList = new DefaultListModel<String>();
 		list = new JList<String>(defList);
@@ -102,12 +105,13 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 		try
 		{
 			image = ImageIO.read(new File("cat2.bmp"));
+			originalImage = ImageIO.read(new File("cat2.bmp"));
+			
 		}
 		catch (IOException e)
 		{
 			System.out.println("The image cannot be loaded");
 		}
-		
 		add(rectButton);
 		add(ovalButton);
 		add(polynomialButton);
@@ -365,120 +369,137 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 		
 			if(currFigure == 1)
 			{
-				currArgs[2] = arg0.getX();
-				currArgs[3] = arg0.getY();
-				
-				if(arg0.getX() >= currArgs[0] && arg0.getY() >= currArgs[1])
+				if(currArgs[0] != currArgs[2] && currArgs[1] != currArgs[3])
 				{
-					g2d.drawRect(currArgs[0], currArgs[1], currArgs[2] - currArgs[0], currArgs[3] - currArgs[1]);
-					rectArray.add(new Rectangle(currArgs[0], currArgs[1], currArgs[2] - currArgs[0], currArgs[3] - currArgs[1]));
-				}
-				else if(arg0.getX() < currArgs[0] && arg0.getY() >= currArgs[1])
-				{
-					g2d.drawRect(currArgs[2], currArgs[1], currArgs[0] - currArgs[2], currArgs[3] - currArgs[1]);
-					rectArray.add(new Rectangle(currArgs[2], currArgs[1], currArgs[0] - currArgs[2], currArgs[3] - currArgs[1]));
-				}
-				else if(arg0.getX() < currArgs[0] && arg0.getY() < currArgs[1])
-				{
-					g2d.drawRect(currArgs[2], currArgs[3], currArgs[0] - currArgs[2], currArgs[1] - currArgs[3]);
-					rectArray.add(new Rectangle(currArgs[2], currArgs[3], currArgs[0] - currArgs[2], currArgs[1] - currArgs[3]));
-				}
-				else if(arg0.getX() >= currArgs[0] && arg0.getY() < currArgs[1])
-				{
-					g2d.drawRect(currArgs[0], currArgs[3], currArgs[2] - currArgs[0], currArgs[1] - currArgs[3]);
-					rectArray.add(new Rectangle(currArgs[0], currArgs[3], currArgs[2] - currArgs[0], currArgs[1] - currArgs[3]));
-				}
-				
-				defList.addElement("Rectangle" + rectArray.size());
-				
-				int maxX = (int) (rectArray.get(rectArray.size() - 1).getMaxX());
-				int minX = (int) (rectArray.get(rectArray.size() - 1).getMinX());
-				int maxY = (int) (rectArray.get(rectArray.size() - 1).getMaxY());
-				int minY = (int) (rectArray.get(rectArray.size() - 1).getMinY());
-				
-				BufferedImage img = new BufferedImage(maxX - minX, maxY - minY, BufferedImage.TYPE_INT_RGB);
-				
-				for(int i = 0; i < maxX - minX; i++)
-				{
-					for(int j = 0; j < maxY - minY; j++)
+					currArgs[2] = arg0.getX();
+					currArgs[3] = arg0.getY();
+					
+					if(arg0.getX() >= currArgs[0] && arg0.getY() >= currArgs[1])
 					{
-						img.setRGB(i, j, image.getRGB(minX + i - 300, minY + j));
+						g2d.drawRect(currArgs[0], currArgs[1], currArgs[2] - currArgs[0], currArgs[3] - currArgs[1]);
+						rectArray.add(new Rectangle(currArgs[0], currArgs[1], currArgs[2] - currArgs[0], currArgs[3] - currArgs[1]));
 					}
+					else if(arg0.getX() < currArgs[0] && arg0.getY() >= currArgs[1])
+					{
+						g2d.drawRect(currArgs[2], currArgs[1], currArgs[0] - currArgs[2], currArgs[3] - currArgs[1]);
+						rectArray.add(new Rectangle(currArgs[2], currArgs[1], currArgs[0] - currArgs[2], currArgs[3] - currArgs[1]));
+					}
+					else if(arg0.getX() < currArgs[0] && arg0.getY() < currArgs[1])
+					{
+						g2d.drawRect(currArgs[2], currArgs[3], currArgs[0] - currArgs[2], currArgs[1] - currArgs[3]);
+						rectArray.add(new Rectangle(currArgs[2], currArgs[3], currArgs[0] - currArgs[2], currArgs[1] - currArgs[3]));
+					}
+					else if(arg0.getX() >= currArgs[0] && arg0.getY() < currArgs[1])
+					{
+						g2d.drawRect(currArgs[0], currArgs[3], currArgs[2] - currArgs[0], currArgs[1] - currArgs[3]);
+						rectArray.add(new Rectangle(currArgs[0], currArgs[3], currArgs[2] - currArgs[0], currArgs[1] - currArgs[3]));
+					}
+					
+					
+					defList.addElement("Rectangle" + rectArray.size());
+					
+					int maxX = (int) (rectArray.get(rectArray.size() - 1).getMaxX());
+					int minX = (int) (rectArray.get(rectArray.size() - 1).getMinX());
+					int maxY = (int) (rectArray.get(rectArray.size() - 1).getMaxY());
+					int minY = (int) (rectArray.get(rectArray.size() - 1).getMinY());
+				
+				
+					BufferedImage img = new BufferedImage(maxX - minX, maxY - minY, BufferedImage.TYPE_INT_RGB);
+	
+					for(int i = 0; i < maxX - minX; i++)
+					{
+						for(int j = 0; j < maxY - minY; j++)
+						{
+							img.setRGB(i, j, image.getRGB(minX + i - 300, minY + j));
+						}
+					}
+					imageList.add(img);
 				}
-				imageList.add(img);
+				else
+				{
+					System.out.println("Rectangle too small");
+				}
+				
 			}
 			else if(currFigure == 0)
 			{
-				currArgs[2] = arg0.getX();
-				currArgs[3] = arg0.getY();
-				
-				if(arg0.getX() >= currArgs[0] && arg0.getY() >= currArgs[1])
+				if(currArgs[0] != currArgs[2] && currArgs[1] != currArgs[3])
 				{
-					g2d.drawOval(currArgs[0], currArgs[1], currArgs[2] - currArgs[0], currArgs[3] - currArgs[1]);
-					int[] arr = new int[4];
-					arr[0] = currArgs[0];
-					arr[1] = currArgs[1];
-					arr[2] = currArgs[2] - currArgs[0];
-					arr[3] = currArgs[3] - currArgs[1];
-					ovalArray.add(arr);
-				}
-				else if(arg0.getX() < currArgs[0] && arg0.getY() >= currArgs[1])
-				{
-					g2d.drawOval(currArgs[2], currArgs[1], currArgs[0] - currArgs[2], currArgs[3] - currArgs[1]);
-					int[] arr = new int[4];
-					arr[0] = currArgs[2];
-					arr[1] = currArgs[1];
-					arr[2] = currArgs[0] - currArgs[2];
-					arr[3] = currArgs[3] - currArgs[1];
-					ovalArray.add(arr);
-				}
-				else if(arg0.getX() < currArgs[0] && arg0.getY() < currArgs[1])
-				{
-					g2d.drawOval(currArgs[2], currArgs[3], currArgs[0] - currArgs[2], currArgs[1] - currArgs[3]);
-					int[] arr = new int[4];
-					arr[0] = currArgs[2];
-					arr[1] = currArgs[3];
-					arr[2] = currArgs[0] - currArgs[2];
-					arr[3] = currArgs[1] - currArgs[3];
-					ovalArray.add(arr);
-				}
-				else if(arg0.getX() >= currArgs[0] && arg0.getY() < currArgs[1])
-				{
-					g2d.drawOval(currArgs[0], currArgs[3], currArgs[2] - currArgs[0], currArgs[1] - currArgs[3]);
-					int[] arr = new int[4];
-					arr[0] = currArgs[0];
-					arr[1] = currArgs[3];
-					arr[2] = currArgs[2] - currArgs[0];
-					arr[3] = currArgs[1] - currArgs[3];
-					ovalArray.add(arr);
-				}
-				
-				defList.addElement("Oval" + ovalArray.size());
-				
-				int x = ovalArray.get(ovalArray.size() - 1)[0];
-				int y = ovalArray.get(ovalArray.size() - 1)[1];
-				int w = ovalArray.get(ovalArray.size() - 1)[2];
-				int h = ovalArray.get(ovalArray.size() - 1)[3];
-				double midX = w/2;
-				double midY = h/2;
-				
-				BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-				
-				for(int i = 0; i < w; i++)
-				{
-					for(int j = 0; j < h; j++)
+					currArgs[2] = arg0.getX();
+					currArgs[3] = arg0.getY();
+					
+					if(arg0.getX() >= currArgs[0] && arg0.getY() >= currArgs[1])
 					{
-						if( (i - midX)*(i - midX) / (midX*midX) + (j - midY)*(j - midY) / (midY*midY) < 1)
+						g2d.drawOval(currArgs[0], currArgs[1], currArgs[2] - currArgs[0], currArgs[3] - currArgs[1]);
+						int[] arr = new int[4];
+						arr[0] = currArgs[0];
+						arr[1] = currArgs[1];
+						arr[2] = currArgs[2] - currArgs[0];
+						arr[3] = currArgs[3] - currArgs[1];
+						ovalArray.add(arr);
+					}
+					else if(arg0.getX() < currArgs[0] && arg0.getY() >= currArgs[1])
+					{
+						g2d.drawOval(currArgs[2], currArgs[1], currArgs[0] - currArgs[2], currArgs[3] - currArgs[1]);
+						int[] arr = new int[4];
+						arr[0] = currArgs[2];
+						arr[1] = currArgs[1];
+						arr[2] = currArgs[0] - currArgs[2];
+						arr[3] = currArgs[3] - currArgs[1];
+						ovalArray.add(arr);
+					}
+					else if(arg0.getX() < currArgs[0] && arg0.getY() < currArgs[1])
+					{
+						g2d.drawOval(currArgs[2], currArgs[3], currArgs[0] - currArgs[2], currArgs[1] - currArgs[3]);
+						int[] arr = new int[4];
+						arr[0] = currArgs[2];
+						arr[1] = currArgs[3];
+						arr[2] = currArgs[0] - currArgs[2];
+						arr[3] = currArgs[1] - currArgs[3];
+						ovalArray.add(arr);
+					}
+					else if(arg0.getX() >= currArgs[0] && arg0.getY() < currArgs[1])
+					{
+						g2d.drawOval(currArgs[0], currArgs[3], currArgs[2] - currArgs[0], currArgs[1] - currArgs[3]);
+						int[] arr = new int[4];
+						arr[0] = currArgs[0];
+						arr[1] = currArgs[3];
+						arr[2] = currArgs[2] - currArgs[0];
+						arr[3] = currArgs[1] - currArgs[3];
+						ovalArray.add(arr);
+					}
+					
+					defList.addElement("Oval" + ovalArray.size());
+					
+					int x = ovalArray.get(ovalArray.size() - 1)[0];
+					int y = ovalArray.get(ovalArray.size() - 1)[1];
+					int w = ovalArray.get(ovalArray.size() - 1)[2];
+					int h = ovalArray.get(ovalArray.size() - 1)[3];
+					double midX = w/2;
+					double midY = h/2;
+					
+					BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+					
+					for(int i = 0; i < w; i++)
+					{
+						for(int j = 0; j < h; j++)
 						{
-							img.setRGB(i, j, image.getRGB(x + i - 300, y + j));	
-						}
-						else
-						{
-							img.setRGB(i, j, int2RGB(0, 0, 0));
+							if( (i - midX)*(i - midX) / (midX*midX) + (j - midY)*(j - midY) / (midY*midY) < 1)
+							{
+								img.setRGB(i, j, image.getRGB(x + i - 300, y + j));	
+							}
+							else
+							{
+								img.setRGB(i, j, int2RGB(0, 0, 0));
+							}
 						}
 					}
+					imageList.add(img);
 				}
-				imageList.add(img);
+				else
+				{
+					System.out.println("Oval too small");
+				}
 			}
 			
 			repaint();
@@ -497,15 +518,26 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 			currFigure = 2;
 		if(source == resetButton)
 		{
-			rectArray.clear();;
-			ovalArray.clear();;
-			polynomialArray.clear();;
-			lineArray.clear();;
-			imageList.clear();;
+			try
+			{
+				image = ImageIO.read(new File("cat2.bmp"));
+				originalImage = ImageIO.read(new File("cat2.bmp"));
+				
+			}
+			catch (IOException ex)
+			{
+				System.out.println("The image cannot be loaded");
+			}
+			rectArray.clear();
+			ovalArray.clear();
+			polynomialArray.clear();
+			lineArray.clear();
+			imageList.clear();
 			defList.clear();
 			currImage = image;
-			splitPane.setRightComponent(new ImagePanel(image));
+			splitPane.setRightComponent(new ImagePanel(currImage));
 			splitPane.setDividerLocation(100);
+			repaint();
 		}
 		if(source == saveButton)
 		{
@@ -518,96 +550,106 @@ class DrawPanel extends JPanel implements ActionListener, MouseListener, MouseMo
 			{
 				System.out.println("The image cannot be stored");
 			}
+			catch(IndexOutOfBoundsException ex)
+			{
+				System.out.println("No image picked");
+			}
 		}
 		if(source == deleteButton)
 		{
 			String listElem = list.getSelectedValue();
-		
-			if(listElem.startsWith("Rectangle"))
+			try
 			{
-				int index = Integer.parseInt(listElem.substring(9, listElem.length()));
-				index--;
-				rectArray.get(index);
-				
-				int maxX = (int) (rectArray.get(index).getMaxX());
-				int minX = (int) (rectArray.get(index).getMinX());
-				int maxY = (int) (rectArray.get(index).getMaxY());
-				int minY = (int) (rectArray.get(index).getMinY());
-				
-				for(int i = 0; i < maxX - minX; i++)
+				if(listElem.startsWith("Rectangle"))
 				{
-					for(int j = 0; j < maxY - minY; j++)
+					int index = Integer.parseInt(listElem.substring(9, listElem.length()));
+					index--;
+					rectArray.get(index);
+					
+					int maxX = (int) (rectArray.get(index).getMaxX());
+					int minX = (int) (rectArray.get(index).getMinX());
+					int maxY = (int) (rectArray.get(index).getMaxY());
+					int minY = (int) (rectArray.get(index).getMinY());
+					
+					for(int i = 0; i < maxX - minX; i++)
 					{
-						image.setRGB(minX + i - 300, minY + j, int2RGB(0, 0, 0));
-					}
-				}
-			}
-			else if(listElem.startsWith("Polynomial"))
-			{
-				int index = Integer.parseInt(listElem.substring(10, listElem.length()));
-				index--;
-				ArrayList<Point> tempPointArray = polynomialArray.get(index).getPoints();
-				ArrayList<Integer> xList = new ArrayList<Integer>();
-				ArrayList<Integer> yList = new ArrayList<Integer>();
-				
-				for(int i = 0; i < tempPointArray.size(); i ++)
-				{
-					xList.add((int) tempPointArray.get(i).getX()); 
-					yList.add((int) tempPointArray.get(i).getY()); 
-				}
-				
-				int maxX = Collections.max(xList);
-				int minX = Collections.min(xList);
-				int maxY = Collections.max(yList);
-				int minY = Collections.min(yList);
-				int w = maxX - minX;
-				int h = maxY - minY;
-				
-				for(int i = 0; i < w; i++)
-				{
-					for(int j = 0; j < h; j++)
-					{
-						if(polynomialArray.get(polynomialArray.size() - 1).isInside(new Point(minX+i, minY+j)))
+						for(int j = 0; j < maxY - minY; j++)
 						{
 							image.setRGB(minX + i - 300, minY + j, int2RGB(0, 0, 0));
 						}
 					}
 				}
-			}
-			else if(listElem.startsWith("Oval"))
-			{
-				int index = Integer.parseInt(listElem.substring(4, listElem.length()));
-				index--;
-				
-				int x = ovalArray.get(index)[0];
-				int y = ovalArray.get(index)[1];
-				int w = ovalArray.get(index)[2];
-				int h = ovalArray.get(index)[3];
-				double midX = w/2;
-				double midY = h/2;
-				
-				for(int i = 0; i < w; i++)
+				else if(listElem.startsWith("Polynomial"))
 				{
-					for(int j = 0; j < h; j++)
+					int index = Integer.parseInt(listElem.substring(10, listElem.length()));
+					index--;
+					ArrayList<Point> tempPointArray = polynomialArray.get(index).getPoints();
+					ArrayList<Integer> xList = new ArrayList<Integer>();
+					ArrayList<Integer> yList = new ArrayList<Integer>();
+					
+					for(int i = 0; i < tempPointArray.size(); i ++)
 					{
-						if( (i - midX)*(i - midX) / (midX*midX) + (j - midY)*(j - midY) / (midY*midY) < 1)
+						xList.add((int) tempPointArray.get(i).getX()); 
+						yList.add((int) tempPointArray.get(i).getY()); 
+					}
+					
+					int maxX = Collections.max(xList);
+					int minX = Collections.min(xList);
+					int maxY = Collections.max(yList);
+					int minY = Collections.min(yList);
+					int w = maxX - minX;
+					int h = maxY - minY;
+					
+					for(int i = 0; i < w; i++)
+					{
+						for(int j = 0; j < h; j++)
 						{
-							image.setRGB(x + i - 300, y + j, int2RGB(0, 0, 0));	
+							if(polynomialArray.get(polynomialArray.size() - 1).isInside(new Point(minX+i, minY+j)))
+							{
+								image.setRGB(minX + i - 300, minY + j, int2RGB(0, 0, 0));
+							}
 						}
 					}
 				}
+				else if(listElem.startsWith("Oval"))
+				{
+					int index = Integer.parseInt(listElem.substring(4, listElem.length()));
+					index--;
+					
+					int x = ovalArray.get(index)[0];
+					int y = ovalArray.get(index)[1];
+					int w = ovalArray.get(index)[2];
+					int h = ovalArray.get(index)[3];
+					double midX = w/2;
+					double midY = h/2;
+					
+					for(int i = 0; i < w; i++)
+					{
+						for(int j = 0; j < h; j++)
+						{
+							if( (i - midX)*(i - midX) / (midX*midX) + (j - midY)*(j - midY) / (midY*midY) < 1)
+							{
+								image.setRGB(x + i - 300, y + j, int2RGB(0, 0, 0));	
+							}
+						}
+					}
+				}
+				imageList.remove(list.getSelectedIndex());
+				defList.remove(list.getSelectedIndex());
+				currImage = image;
+				splitPane.setRightComponent(new ImagePanel(currImage));
 			}
-			imageList.remove(list.getSelectedIndex());
-			defList.remove(list.getSelectedIndex());
-			currImage = image;
-			splitPane.setRightComponent(new ImagePanel(currImage));
+			catch(Exception ex)
+			{
+				System.out.println("No image picked");
+			}
 		}
 		else if(source == colorButton)
 		{
 			selectionColor = JColorChooser.showDialog(null, "Pick your color", selectionColor);
 			if(selectionColor == null)
 			{
-				selectionColor = Color.GRAY;
+				selectionColor = Color.LIGHT_GRAY;
 			}
 		}
 		repaint();
