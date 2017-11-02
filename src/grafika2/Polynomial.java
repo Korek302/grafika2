@@ -32,7 +32,7 @@ public class Polynomial
 		int i = 0;
 		try
 		{
-			DrawPanel.g2d.drawLine((int)start.getX(), (int)start.getY(), (int)points.get(0).getX(), (int)points.get(0).getY());
+			MyImagePanel.g2d.drawLine((int)start.getX(), (int)start.getY(), (int)points.get(0).getX(), (int)points.get(0).getY());
 			for(i = 0; i < points.size() - 1; i++)
 			{
 				MyImagePanel.g2d.drawLine((int)points.get(i).getX(), (int)points.get(i).getY(), 

@@ -42,7 +42,7 @@ public class MyImagePanel  extends JPanel implements ActionListener, MouseListen
 		setLayout(null);
 		setBackground(new Color(150, 150, 100));
 		
-		image = new BufferedImage(500, 500, BufferedImage.TYPE_INT_RGB);
+		image = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_RGB);
 		
 		rectArray = new ArrayList<Rectangle>();
 		ovalArray = new ArrayList<int[]>();
