@@ -2,11 +2,6 @@ package grafika2;
 
 import javax.swing.JFrame;
 
-//todo
-//clipImage (?)
-//rozbic na klasy (?) rect, oval, poly (?)
-//rysowanie tylko na obrazku
-
 public class Gui 
 {
 	JFrame frame;
@@ -23,8 +18,9 @@ public class Gui
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setTitle("lab2");
-		frame.setSize(800, 540);
+		frame.setSize(900, 560);
 		frame.getContentPane().add(panel);
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
 }
